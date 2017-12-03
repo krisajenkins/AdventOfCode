@@ -2,14 +2,12 @@ module Year2017.Day3 where
 
 import Prelude
 
-import Control.Monad.Rec.Class (Step(..), tailRecM)
+import Control.Monad.Rec.Class (Step(Loop, Done), tailRec)
 import Data.Foldable (sum)
-import Data.Identity (Identity)
 import Data.Int (floor, pow, toNumber)
 import Data.Map (Map)
 import Data.Map as Map
 import Data.Maybe (fromMaybe)
-import Data.Newtype (unwrap)
 import Data.Tuple (Tuple)
 import Data.Tuple.Nested ((/\))
 import Math (sqrt)
@@ -56,23 +54,23 @@ neighboursOf (x /\ y) = do
 
 firstLarger :: Int -> Int
 firstLarger n =
-  unwrap $ tailRecM go { step: 1
-                       , target: n
-                       , written: Map.singleton (0 /\ 0) 1
-                       }
+  tailRec go { step: 1
+             , target: n
+             , written: Map.singleton (0 /\ 0) 1
+             }
 
-go :: State -> Identity (Step State Int)
+go :: State -> Step State Int
 go { step, target, written } =
     let position = positionOf step
         neighbours = neighboursOf position
         neighbourSum :: Int
         neighbourSum = sum (fromMaybe 0 <<< flip Map.lookup written <$> neighbours)
-    in pure $ if neighbourSum >= target
-              then Done neighbourSum
-              else Loop { step: step + 1
-                        , target
-                        , written: Map.insert position neighbourSum written
-                        }
+    in if neighbourSum >= target
+       then Done neighbourSum
+       else Loop { step: step + 1
+                 , target
+                 , written: Map.insert position neighbourSum written
+                 }
 
 solution2 :: Int
 solution2 = firstLarger 289326
