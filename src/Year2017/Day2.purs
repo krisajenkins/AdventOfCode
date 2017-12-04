@@ -9,31 +9,25 @@ import Control.MonadPlus (guard)
 import Data.Array as Array
 import Data.Bifunctor (rmap)
 import Data.Either (Either)
-import Data.String (trim)
-import Node.Encoding (Encoding(..))
 import Node.FS (FS)
-import Node.FS.Sync (readTextFile)
-import ParserUtils (integer)
-import Text.Parsing.StringParser (ParseError, Parser, runParser)
+import ParserUtils (integer, parseFile)
+import Text.Parsing.StringParser (ParseError, Parser)
 import Text.Parsing.StringParser.Combinators (sepBy)
 import Text.Parsing.StringParser.String (char)
 
-readInput :: Eff (fs :: FS, exception :: EXCEPTION) (Either ParseError (Array (Array Int)))
-readInput = runParser fileParser <<< trim <$> readTextFile UTF8 "src/Year2017/Day2.txt"
+readInput :: forall eff. Eff (fs :: FS, exception :: EXCEPTION | eff) (Either ParseError (Array (Array Int)))
+readInput = parseFile lineParser "src/Year2017/Day2.txt"
 
 lineParser :: Parser (Array Int)
 lineParser = Array.fromFoldable <$> integer `sepBy` char '\t'
 
-fileParser :: Parser (Array (Array Int))
-fileParser = Array.fromFoldable <$> lineParser `sepBy` char '\n'
-
 ------------------------------------------------------------
 
-solution1 :: Eff (fs :: FS , exception :: EXCEPTION) (Either ParseError Int)
+solution1 :: forall eff. Eff (fs :: FS , exception :: EXCEPTION | eff) (Either ParseError Int)
 solution1 =
   rmap sumOfRanges <$> readInput
 
-solution2 :: Eff (fs :: FS , exception :: EXCEPTION) (Either ParseError Int)
+solution2 :: forall eff. Eff (fs :: FS , exception :: EXCEPTION | eff) (Either ParseError Int)
 solution2 =
   rmap sumOfCleanDivisors <$> readInput
 
