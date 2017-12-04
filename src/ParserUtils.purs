@@ -1,11 +1,20 @@
 module ParserUtils where
 
-import Control.Alternative ((<|>))
-import Data.Foldable (foldl)
 import Prelude
-import Text.Parsing.StringParser (Parser)
-import Text.Parsing.StringParser.Combinators (many1)
-import Text.Parsing.StringParser.String (string)
+
+import Control.Alternative ((<|>))
+import Control.Monad.Eff (Eff)
+import Control.Monad.Eff.Exception (EXCEPTION)
+import Data.Array as Array
+import Data.Either (Either)
+import Data.Foldable (foldl)
+import Data.String (trim)
+import Node.Encoding (Encoding(..))
+import Node.FS (FS)
+import Node.FS.Sync (readTextFile)
+import Text.Parsing.StringParser (ParseError, Parser, runParser)
+import Text.Parsing.StringParser.Combinators (many1, sepBy)
+import Text.Parsing.StringParser.String (char, string)
 
 digit :: Parser Int
 digit = string "0" $> 0
@@ -21,3 +30,16 @@ digit = string "0" $> 0
 
 integer :: Parser Int
 integer = foldl (\acc n -> (acc * 10) + n) 0 <$> many1 digit
+
+parseFile ::
+  forall eff a.
+  Parser a
+  -> String
+  -> Eff
+       (fs :: FS, exception :: EXCEPTION | eff)
+       (Either ParseError (Array a))
+parseFile lineParser filename =
+  runParser (fileParser lineParser) <<< trim <$> readTextFile UTF8 filename
+
+fileParser :: forall a. Parser a -> Parser (Array a)
+fileParser lineParser = Array.fromFoldable <$> lineParser `sepBy` char '\n'

@@ -11,19 +11,14 @@ import Data.Bifunctor (rmap)
 import Data.Either (Either)
 import Data.Maybe (Maybe(..), isNothing)
 import Data.Set as Set
-import Data.String (trim)
-import Node.Encoding (Encoding(..))
 import Node.FS (FS)
-import Node.FS.Sync (readTextFile)
-import Text.Parsing.StringParser (ParseError, Parser, runParser)
+import ParserUtils (parseFile)
+import Text.Parsing.StringParser (ParseError, Parser)
 import Text.Parsing.StringParser.Combinators (many1, sepBy)
 import Text.Parsing.StringParser.String (alphaNum, char)
 
 readInput :: forall eff. Eff (fs :: FS, exception :: EXCEPTION | eff) (Either ParseError (Array (Array (Array Char))))
-readInput = runParser fileParser <<< trim <$> readTextFile UTF8 "src/Year2017/Day4.txt"
-
-fileParser :: Parser (Array (Array (Array Char)))
-fileParser = Array.fromFoldable <$> lineParser `sepBy` char '\n'
+readInput = parseFile lineParser "src/Year2017/Day4.txt"
 
 lineParser :: Parser (Array (Array Char))
 lineParser = Array.fromFoldable <<< map Array.fromFoldable <$> many1 alphaNum `sepBy` char ' '
