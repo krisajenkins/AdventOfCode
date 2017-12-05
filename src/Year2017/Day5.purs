@@ -2,42 +2,51 @@ module Year2017.Day5 where
 
 import Prelude
 
-import Control.Monad.Rec.Class (Step(..), tailRec)
-import Data.Array (index, modifyAt)
+import Control.Monad.Eff (Eff)
+import Control.Monad.Rec.Class (Step(Done, Loop), tailRecM)
+import Control.Monad.ST (ST)
+import Data.Array.ST (STArray, freeze, modifySTArray, peekSTArray, thaw)
 import Data.Generic (class Generic, gShow)
 import Data.Maybe (Maybe(..))
 import Data.Newtype (class Newtype)
 import Utils (dec, inc)
 
-newtype State = State
+newtype State i = State
   { steps :: Int
-  , counter :: Int
-  , instructions :: Array Int
+  , programCounter :: Int
+  , instructions :: i
   }
 
-derive instance genericState :: Generic State
-derive instance newtypeState :: Newtype State _
-derive instance eqState :: Eq State
+type RunningState h = State (STArray h Int)
+type StaticState = State (Array Int)
 
-instance showState :: Show State where
+derive instance eqState :: Eq i => Eq (State i)
+derive instance genericState :: Generic i => Generic (State i)
+derive instance newtypeState :: Newtype (State i) _
+
+instance showState :: (Generic i, Show i) => Show (State i) where
   show = gShow
 
-runCPU :: (Int -> Int) -> Array Int -> State
-runCPU updateRule instructions =
-  tailRec go $ State { steps: 0
-                     , counter: 0
+runCPU :: forall h eff. (Int -> Int) -> Array Int -> Eff (st :: ST h | eff) StaticState
+runCPU updateRule frozenInstructions = do
+  instructions <- thaw frozenInstructions
+  tailRecM go (State { steps: 0
+                     , programCounter: 0
                      , instructions
-                     }
+                     })
   where
-    go :: State -> Step State State
-    go state@(State { steps, counter, instructions }) =
-      case index instructions counter, modifyAt counter updateRule instructions of
-        Just currentInstruction, Just modifiedInstructions
-          -> Loop $ State { steps: steps + 1
-                          , counter: counter + currentInstruction
-                          , instructions: modifiedInstructions
-                          }
-        _, _ -> Done state
+    go :: RunningState h -> Eff (st :: ST h | eff) (Step (RunningState h) StaticState)
+    go (State { steps, programCounter, instructions }) = do
+      mCurrentInstruction <- peekSTArray instructions programCounter
+      case mCurrentInstruction of
+        Just currentInstruction
+          -> do _ <- modifySTArray instructions programCounter updateRule
+                pure $ Loop $ State { steps: steps + 1
+                                    , programCounter: programCounter + currentInstruction
+                                    , instructions
+                                    }
+        _ -> do finalInstructions <- freeze instructions
+                pure $ Done $ State { programCounter, steps, instructions: finalInstructions }
 
 sampleInput :: Array Int
 sampleInput = [ 0 , 3 , 0 , 1 , -3 ]
@@ -47,15 +56,15 @@ weirdUpdateRule n
   | n >= 3 = dec n
   | otherwise = inc n
 
-solution1 :: Int
-solution1 =
-  let State { steps } = runCPU inc input
-  in steps
+solution1 :: forall eff h. Eff (st :: ST h | eff) Int
+solution1 = do
+  State { steps } <- runCPU inc input
+  pure steps
 
-solution2 :: Int
-solution2 =
-  let State { steps } = runCPU weirdUpdateRule input
-  in steps
+solution2 :: forall eff h. Eff (st :: ST h | eff) Int
+solution2 = do
+  State { steps } <- runCPU weirdUpdateRule input
+  pure steps
 
 input :: Array Int
 input =
