@@ -13,6 +13,7 @@ import Year2017.Day1Test as Year2017.Day1Test
 import Year2017.Day2Test as Year2017.Day2Test
 import Year2017.Day3Test as Year2017.Day3Test
 import Year2017.Day4Test as Year2017.Day4Test
+import Year2017.Day5Test as Year2017.Day5Test
 
 main :: forall eff. Eff (testOutput :: TESTOUTPUT, avar :: AVAR, console :: CONSOLE, fs :: FS, exception :: EXCEPTION | eff) Unit
 main = runTest do
@@ -20,3 +21,4 @@ main = runTest do
   Year2017.Day2Test.all
   Year2017.Day3Test.all
   Year2017.Day4Test.all
+  Year2017.Day5Test.all
