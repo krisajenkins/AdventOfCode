@@ -2,6 +2,10 @@
 
 My entries for AdventOfCode.com, written in PureScript.
 
+/Disclaimer: I'm not claiming that this code is beautiful, or even
+100% correct, just that it earns me those precious, precious
+stars. :-D/
+
 ## Thoughts
 
 ### 2017, Day 6
