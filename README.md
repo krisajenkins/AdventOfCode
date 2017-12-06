@@ -2,9 +2,9 @@
 
 My entries for AdventOfCode.com, written in PureScript.
 
-/Disclaimer: I'm not claiming that this code is beautiful, or even
+_Disclaimer: I'm not claiming that this code is beautiful, or even
 100% correct, just that it earns me those precious, precious
-stars. :-D/
+stars. :-D_
 
 ## Thoughts
 
