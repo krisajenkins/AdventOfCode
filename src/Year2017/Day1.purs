@@ -3,7 +3,7 @@ module Year2017.Day1 where
 import Prelude
 
 import Control.Fold (Fold, foldl, unfoldFold)
-import Data.Array (drop, dropWhile, length, take, takeWhile)
+import Data.Array (drop, length, take)
 import Data.Array as Array
 import Data.Maybe (Maybe(..))
 import Data.Tuple (Tuple(..), snd)
