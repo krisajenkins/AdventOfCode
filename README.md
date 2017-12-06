@@ -4,6 +4,27 @@ My entries for AdventOfCode.com, written in PureScript.
 
 ## Thoughts
 
+### 2017, Day 6
+
+This seemed like an easy one that just had a lot of legwork.
+
+I have clearly gotten over my phobia of Data.Tuple.Nested, as I'm
+using `/\` syntax everywhere now. :-)
+
+### 2017, Day 5
+
+Not hard, but hard to get performant. Part 2 really falls apart if
+your implementation isn't quick enough.
+
+### 2017, Day 4
+
+Easy. I'm willfully over-using `Fold` here for the fun of it.
+
+### 2017, Day 3
+
+The hardest so far. I got the algorithm really quickly, but getting it
+right took me ages. I'm very gad this challenge happened on a weekend.
+
 ### 2017, Day 2
 
 Used a real parser today! Nice excuse to use Control.Fold too. I wish I'd
