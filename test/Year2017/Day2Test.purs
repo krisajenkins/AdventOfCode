@@ -4,7 +4,6 @@ import Prelude
 
 import Control.Monad.Eff.Class (liftEff)
 import Control.Monad.Eff.Exception (EXCEPTION)
-import Data.Either (Either(..))
 import Node.FS (FS)
 import Test.Unit (TestSuite, suite, test)
 import Test.Unit.Assert (equal)
@@ -20,10 +19,10 @@ solution1Tests :: forall eff. TestSuite (fs :: FS, exception :: EXCEPTION | eff)
 solution1Tests =
   test "Solution 1" do
     result <- liftEff solution1
-    equal (Right 36174) result
+    equal 36174 result
 
 solution2Tests :: forall eff. TestSuite (fs :: FS, exception :: EXCEPTION | eff)
 solution2Tests =
   test "Solution 2" do
     result <- liftEff solution2
-    equal (Right 244) result
+    equal 244 result
