@@ -4,9 +4,9 @@ import Prelude
 
 import Control.Alternative ((<|>))
 import Control.Monad.Eff (Eff)
-import Control.Monad.Eff.Exception (EXCEPTION)
+import Control.Monad.Eff.Exception (EXCEPTION, error, throwException)
 import Data.Array as Array
-import Data.Either (Either)
+import Data.Either (Either(..))
 import Data.Foldable (foldl)
 import Data.String (trim)
 import Node.Encoding (Encoding(..))
@@ -40,6 +40,10 @@ parseFile ::
        (Either ParseError (Array a))
 parseFile lineParser filename =
   runParser (fileParser lineParser) <<< trim <$> readTextFile UTF8 filename
+
+mustSucceed :: forall eff e a. Show e => Either e a -> Eff (exception :: EXCEPTION | eff) a
+mustSucceed (Right v) = pure v
+mustSucceed (Left err) = throwException $ error $ show err
 
 fileParser :: forall a. Parser a -> Parser (Array a)
 fileParser lineParser = Array.fromFoldable <$> lineParser `sepBy` char '\n'
