@@ -2,11 +2,21 @@
 
 My entries for AdventOfCode.com, written in PureScript.
 
-_Disclaimer: I'm not claiming that this code is beautiful, or even
+/Disclaimer: I'm not claiming that this code is beautiful, or even
 100% correct, just that it earns me those precious, precious
-stars. :-D_
+stars. :-D/
 
 ## Thoughts
+
+### 2017, Day 8
+
+Probably my most elegant solution yet, just through using
+Control.Fold. Also - wow - a real, decent-sized parser. :-)
+
+### 2017, Day 7
+
+Nice. Makes me want to sit down with a bowl of satsumas and
+catamorphism tutorial.
 
 ### 2017, Day 6
 

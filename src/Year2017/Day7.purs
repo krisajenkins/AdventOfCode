@@ -25,7 +25,7 @@ import ParserUtils (integer, mustSucceed, parseFile)
 import Prelude hiding (between)
 import Text.Parsing.StringParser (Parser)
 import Text.Parsing.StringParser.Combinators (between, many1, optionMaybe, sepBy)
-import Text.Parsing.StringParser.String (alphaNum, char, string, whiteSpace)
+import Text.Parsing.StringParser.String (alphaNum, char, skipSpaces, string)
 
 readInput :: forall eff.
   Eff
@@ -38,7 +38,7 @@ readInput =
 lineParser :: Parser (String /\ (Int /\ Array String))
 lineParser = do
   name <- nameParser
-  _ <- whiteSpace
+  skipSpaces
   weight <- between (char '(') (char ')') integer
   children <- fromMaybe [] <$> optionMaybe childrenParser
   pure $ (name /\ (weight /\ children))
@@ -46,7 +46,7 @@ lineParser = do
 childrenParser :: Parser (Array String)
 childrenParser = do
   _ <- string " -> "
-  _ <- whiteSpace
+  skipSpaces
   Array.fromFoldable <$> (nameParser `sepBy` string ", ")
 
 nameParser :: Parser String
