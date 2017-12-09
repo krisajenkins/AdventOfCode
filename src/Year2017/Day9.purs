@@ -17,7 +17,9 @@ import Text.Parsing.StringParser.Combinators (between, many, sepBy)
 import Text.Parsing.StringParser.String (anyChar, char, noneOf)
 import Data.String as String
 
-data Tree a = Node (Array (Tree a)) | Leaf a
+data Tree a
+  = Node (Array (Tree a))
+  | Leaf a
 
 derive instance genericTree :: Generic a => Generic (Tree a)
 derive instance eqTree :: Eq a => Eq (Tree a)
@@ -25,25 +27,26 @@ derive instance eqTree :: Eq a => Eq (Tree a)
 instance showTree :: (Generic a, Show a) => Show (Tree a) where
   show = gShow
 
-
 garbageChar :: Parser String
 garbageChar =
-  ((char '!' *> anyChar) *> pure "")
+  (char '!' *> anyChar *> pure "")
   <|>
   (String.singleton <$> noneOf ['>'])
 
-
 garbage :: Parser String
-garbage = String.joinWith "" <<< Array.fromFoldable <$> between (char '<') (char '>') (many garbageChar)
+garbage =
+  String.joinWith "" <<< Array.fromFoldable
+    <$> between (char '<') (char '>')
+          (many garbageChar)
 
 groupParser :: Parser (Tree String)
 groupParser =
-  fix $ \p ->
-   (Leaf <$> garbage) <|>
-    between (char '{') (char '}')
-      (Node <<< Array.fromFoldable <$>
-
-          (p `sepBy` char ',')
+  fix $ \recur ->
+   (Leaf <$> garbage)
+   <|>
+   between (char '{') (char '}')
+      (Node <<< Array.fromFoldable
+         <$> recur `sepBy` char ','
       )
 
 ------------------------------------------------------------
@@ -53,11 +56,11 @@ readInput = do
   mustSucceed =<< runParser groupParser <$> readTextFile UTF8 "src/Year2017/Day9.txt"
 
 solution1 :: forall eff. Eff (exception :: EXCEPTION, fs :: FS | eff) Int
-solution1 = groupTotal 0 <$> readInput
+solution1 = groupTotal 1 <$> readInput
 
 groupTotal :: forall a. Int -> Tree a -> Int
 groupTotal n (Leaf _) = 0
-groupTotal n (Node leaves) = (n+1) + sum (groupTotal (n+1) <$> leaves)
+groupTotal n (Node leaves) = n + sum (groupTotal (n + 1) <$> leaves)
 
 solution2 :: forall eff. Eff (exception :: EXCEPTION, fs :: FS | eff) Int
 solution2 = garbageTotal <$> readInput
