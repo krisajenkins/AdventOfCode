@@ -10,8 +10,10 @@ stars. :-D/
 
 ### 2017, Day 9
 
-Fun. My parser practice is paying off. Also, that's probably the
-easiest conversion-to-round-2 so far.
+Fun. My parser practice is paying off. I would not like to do this
+challenge without a combinator-style parser library!
+
+Also, that's probably the easiest conversion-to-round-2 so far.
 
 ### 2017, Day 8
 
