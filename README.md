@@ -8,6 +8,11 @@ stars. :-D/
 
 ## Thoughts
 
+### 2017, Day 9
+
+Fun. My parser practice is paying off. Also, that's probably the
+easiest conversion-to-round-2 so far.
+
 ### 2017, Day 8
 
 Probably my most elegant solution yet, just through using
