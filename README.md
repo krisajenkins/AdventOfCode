@@ -8,6 +8,12 @@ stars. :-D/
 
 ## Thoughts
 
+### 2017, Day 10
+
+This one was a bit of a slog. I'm going to start fearing the
+Sundays. The spec could have been clearer. Lord alone knows how people
+managed to solve this in less than 10 minutes. :-o
+
 ### 2017, Day 9
 
 Fun. My parser practice is paying off. I would not like to do this
