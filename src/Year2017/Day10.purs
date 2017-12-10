@@ -81,12 +81,15 @@ runHash xs lengths =
 
 ------------------------------------------------------------
 
+initialItems :: Array Int
+initialItems = Array.range 0 255
+
 input :: Array Int
 input = [94, 84, 0, 79, 2, 27, 81, 1, 123, 93, 218, 23, 103, 255, 254, 243]
 
 solution1 :: Int
 solution1 =
-  product $ Array.take 2 $ runHash (Array.range 0 255) input
+  product $ Array.take 2 $ runHash initialItems input
 
 ------------------------------------------------------------
 
@@ -103,21 +106,22 @@ showHash = foldl (\a -> append a <<< padLeft "0" <<< toStringAs hexadecimal) ""
         _ -> xs
 
 knotHash :: String -> String
-knotHash str =
-  let input = Array.range 0 255
-      lengths = toLengths str <> salt
-      finalItems = finaliseRope $ tailRec go (64 /\ initialRope input)
-      go (0 /\ rope) = Done rope
-      go (n /\ rope) =
-        Loop (dec n /\ execState (traverse step lengths) rope)
-      xors = Array.take 16 (chunk 16 finalItems)
-      decs = xorBlock <$> xors
-      hash = showHash decs
-  in hash
+knotHash str = hash
+  where
+    lengths = toLengths str <> salt
+    finalItems = finaliseRope $ tailRec go (64 /\ initialRope initialItems)
+    go (0 /\ rope) = Done rope
+    go (n /\ rope) = Loop (dec n /\ execState (traverse step lengths) rope)
+    xors = Array.take 16 (chunk 16 finalItems)
+    decs = xorBlock <$> xors
+    hash = showHash decs
 
 chunk :: Int -> Array Int -> Array (Array Int)
 chunk _ [] = [[]]
-chunk n xs =  Array.cons (Array.take n xs) (chunk n (Array.drop n xs))
+chunk n xs =
+  Array.cons
+    (Array.take n xs)
+    (chunk n (Array.drop n xs))
 
 toLengths :: String -> Array Int
 toLengths xs =
@@ -126,9 +130,10 @@ toLengths xs =
 salt :: Array Int
 salt = [17, 31, 73, 47, 23]
 
-inputString :: String
-inputString = String.joinWith "," $ show <$> input
+------------------------------------------------------------
 
 solution2 :: String
 solution2 =
   knotHash inputString
+  where
+    inputString = String.joinWith "," $ show <$> input
