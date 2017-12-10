@@ -36,9 +36,6 @@ _distanceTravelled = _Newtype <<< prop (SProxy :: SProxy "distanceTravelled")
 _skip :: forall a. Lens' (Rope a) Int
 _skip = _Newtype <<< prop (SProxy :: SProxy "skip")
 
-input :: Array Int
-input = [94, 84, 0, 79, 2, 27, 81, 1, 123, 93, 218, 23, 103, 255, 254, 243]
-
 twist :: forall a. Int -> Array a -> Array a
 twist n xs =
   Array.drop n xs
@@ -69,10 +66,23 @@ runHash xs lengths =
       len = Array.length xs
       delta = len - (mod (finalState ^. _distanceTravelled) len)
   in cycle delta (finalState ^. _items)
+------------------------------------------------------------
+input :: Array Int
+input = [94, 84, 0, 79, 2, 27, 81, 1, 123, 93, 218, 23, 103, 255, 254, 243]
 
 solution1 :: Int
 solution1 =
   product $ Array.take 2 $ runHash (Array.range 0 255) input
+------------------------------------------------------------
 
-solution2 :: Int
-solution2 = 1
+inputString :: String
+inputString = "94,84,0,79,2,27,81,1,123,93,218,23,103,255,254,243"
+
+salt :: Array Int
+salt = [17, 31, 73, 47, 23]
+
+knotHash :: String -> String
+knotHash str = str
+
+solution2 :: String
+solution2 = knotHash inputString
