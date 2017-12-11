@@ -8,6 +8,10 @@ stars. :-D/
 
 ## Thoughts
 
+### 2017, Day 11
+
+Fun. I've never looked into hexagonal coordinate systems before. :-)
+
 ### 2017, Day 10
 
 This one was a bit of a slog. I'm going to start fearing the
