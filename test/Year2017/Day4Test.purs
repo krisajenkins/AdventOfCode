@@ -14,6 +14,6 @@ all =
 
 containsDuplicatesTests :: forall eff. TestSuite eff
 containsDuplicatesTests =
-  test "Contains Duplicates Folds" do
+  test "containsDuplicates Folds" do
     assert "Array with duplicates" (foldl containsDuplicates [1, 4, 5, 4])
     assertFalse "Array without duplicates" (foldl containsDuplicates [2, 4, 5])
