@@ -8,13 +8,12 @@ import Control.Monad.Eff.Exception (EXCEPTION, error, throwException)
 import Data.Array as Array
 import Data.Either (Either(..))
 import Data.Foldable (foldl)
-import Data.Maybe (Maybe(..))
 import Data.String (trim)
 import Node.Encoding (Encoding(..))
 import Node.FS (FS)
 import Node.FS.Sync (readTextFile)
 import Text.Parsing.StringParser (ParseError, Parser, runParser)
-import Text.Parsing.StringParser.Combinators (many1, optionMaybe, sepBy, withError)
+import Text.Parsing.StringParser.Combinators (many1, sepBy, withError, (<?>))
 import Text.Parsing.StringParser.String (char, string)
 
 digit :: Parser Int
@@ -29,12 +28,12 @@ digit = string "0" $> 0
     <|> string "8" $> 8
     <|> string "9" $> 9
 
+natural :: Parser Int
+natural = flip withError "Expected natural" $ do
+  foldl (\acc n -> (acc * 10) + n) 0 <$> many1 digit
+
 integer :: Parser Int
-integer = flip withError "Expected integer" $ do
-  sign <- signParser
-  digits <- many1 digit
-  let posInt = foldl (\acc n -> (acc * 10) + n) 0 digits
-  pure $ sign posInt
+integer = (signParser <*> natural) <?> "Expected integer"
 
 signParser :: Parser (Int -> Int)
 signParser =
