@@ -35,6 +35,11 @@ lineParser = do
   to <- Set.fromFoldable <$> integer `sepBy` string ", "
   pure $ from /\ to
 
+-- | Oddly, Data.Set.intersection is extremely slow.
+fastIntersection :: forall a. Ord a => Set a -> Set a -> Set a
+fastIntersection a b =
+  Set.fromFoldable (Array.filter (flip Set.member b) (Array.fromFoldable a))
+
 connectedGroups :: Graph -> Array { index :: Int, groupNumber :: Int }
 connectedGroups graph =
   unfoldr visitor { toVisit: Set.empty
@@ -43,7 +48,7 @@ connectedGroups graph =
                   }
   where
     visitor {toVisit, unvisited, groupNumber} =
-      case findMin (Set.intersection toVisit unvisited) of
+      case findMin (fastIntersection toVisit unvisited) of
         Just visiting ->
           let neighbours = fromMaybe Set.empty $ Map.lookup visiting graph
           in Just ({ index: visiting
@@ -60,7 +65,7 @@ connectedGroups graph =
         Nothing ->
           case findMin unvisited of
             Nothing -> Nothing
-            Just nextGroupStart -> visitor { toVisit: Set.insert nextGroupStart toVisit
+            Just nextGroupStart -> visitor { toVisit: Set.singleton nextGroupStart
                                            , unvisited
                                            , groupNumber: groupNumber + 1
                                            }
