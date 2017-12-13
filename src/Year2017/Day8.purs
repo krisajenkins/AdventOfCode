@@ -8,6 +8,7 @@ import Control.Monad.Eff (Eff)
 import Control.Monad.Eff.Exception (EXCEPTION)
 import Data.Array as Array
 import Data.Generic (class Generic, gShow)
+import Data.List (List, concatMap, fromFoldable)
 import Data.Map (Map)
 import Data.Map as Map
 import Data.Maybe (Maybe(..), fromMaybe)
@@ -60,7 +61,7 @@ instance showCondition :: Show Condition where
 readInput :: forall eff.
   Eff
     (fs :: FS, exception :: EXCEPTION | eff)
-    (Array Instruction)
+    (List Instruction)
 readInput =
   parseFile lineParser "src/Year2017/Day8.txt"
     >>= mustSucceed
@@ -155,5 +156,5 @@ solution2 = lifetimeMaximum <$> readInput
     lifetimeMaximum =
       scanl foldCPU
         >>> map Map.values
-        >>> Array.concatMap Array.fromFoldable
+        >>> concatMap fromFoldable
         >>> foldl maximum

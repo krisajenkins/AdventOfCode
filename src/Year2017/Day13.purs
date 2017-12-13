@@ -5,11 +5,12 @@ import Prelude
 import Control.Monad.Eff (Eff)
 import Control.Monad.Eff.Exception (EXCEPTION)
 import Control.Monad.Rec.Class (Step(..), tailRec)
-import Data.Array as Array
 import Data.Foldable (sum)
-import Data.Maybe (Maybe(..), fromMaybe)
+import Data.List (List(..), catMaybes)
+import Data.List as List
+import Data.Array as Array
+import Data.Maybe (Maybe(..))
 import Data.Tuple.Nested (type (/\), (/\))
-import Debug.Trace (spy)
 import Node.FS (FS)
 import ParserUtils (integer, mustSucceed, parseFile)
 import Text.Parsing.StringParser (Parser)
@@ -19,7 +20,7 @@ import Utils (dec)
 readInput :: forall eff.
   Eff
     (fs :: FS, exception :: EXCEPTION | eff)
-    (Array (Int /\ Int))
+    (List (Int /\ Int))
 readInput =
   parseFile lineParser "src/Year2017/Day13.txt" >>= mustSucceed
 
@@ -27,33 +28,29 @@ lineParser :: Parser (Int /\ Int)
 lineParser = do
   scanner <- integer
   _ <- string ": "
-  ranger <- integer
-  pure $ scanner /\ ranger
+  range <- integer
+  pure $ scanner /\ range
 
-scannerCost :: Int /\ Int -> Int
+scannerCost :: Int /\ Int -> Maybe Int
 scannerCost (scanner /\ range) =
   if mod scanner (2 * (dec range)) == 0
-  then scanner * range
-  else 0
+  then Just (scanner * range)
+  else Nothing
 
 solution1 :: forall eff. Eff (fs :: FS , exception :: EXCEPTION | eff) Int
 solution1 =
-  sum <<< map scannerCost <$> readInput
+  sum <<< catMaybes <<< map scannerCost <$> readInput
 
--- ~ Stealing a trick from the sieve of Erastosthenes
-findSafeDelay :: Array (Int /\ Int) -> Array Int
+-- | Stealing a trick from the sieve of Erastosthenes
+findSafeDelay :: List (Int /\ Int) -> Array Int
 findSafeDelay scanners =
-  tailRec go (Array.range 0 5000000 /\ scanners)
+  tailRec go (Array.range 0 4000000 /\ scanners)
   where
-    go (sieve /\ scanners) =
-      case Array.head scanners of
-        Nothing -> Done sieve
-        Just (scanner /\ range) ->
-          let newSieve = (Array.filter (\n -> scannerCost (scanner + n /\ range) == 0) sieve)
-          in Loop $ (newSieve
-                     /\
-                     (Array.drop 1 scanners))
+    go (sieve /\ Nil) = Done sieve
+    go (sieve /\ (Cons (scanner /\ range) scanners)) =
+      let newSieve = (Array.filter (\n -> scannerCost (scanner + n /\ range) == Nothing) sieve)
+      in Loop $ newSieve /\ scanners
 
 solution2 :: forall eff. Eff (fs :: FS , exception :: EXCEPTION | eff) (Maybe Int)
-solution2 = do
+solution2 =
   Array.head <<< findSafeDelay <$> readInput

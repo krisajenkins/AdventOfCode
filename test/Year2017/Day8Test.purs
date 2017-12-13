@@ -4,8 +4,8 @@ import Prelude
 
 import Control.Monad.Eff.Class (liftEff)
 import Control.Monad.Eff.Exception (EXCEPTION)
-import Data.Array as Array
 import Data.Either (Either(Right))
+import Data.List (length)
 import Node.FS (FS)
 import ParserUtils (integer)
 import Test.Unit (TestSuite, suite, test)
@@ -41,7 +41,7 @@ parserTests =
     instructions <- liftEff readInput
     equal
       1000
-      (Array.length instructions)
+      (length instructions)
 
 solution1Tests :: forall eff. TestSuite (fs :: FS, exception :: EXCEPTION | eff)
 solution1Tests =
