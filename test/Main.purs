@@ -22,6 +22,7 @@ import Year2017.Day9Test as Year2017.Day9Test
 import Year2017.Day10Test as Year2017.Day10Test
 import Year2017.Day11Test as Year2017.Day11Test
 import Year2017.Day12Test as Year2017.Day12Test
+import Year2017.Day13Test as Year2017.Day13Test
 
 main ::
   forall h eff.
@@ -45,3 +46,4 @@ main = runTest do
   Year2017.Day10Test.all
   Year2017.Day11Test.all
   Year2017.Day12Test.all
+  Year2017.Day13Test.all
