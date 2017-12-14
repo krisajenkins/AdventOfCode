@@ -8,13 +8,12 @@ import Data.Array (length)
 import Data.Array as Array
 import Data.Foldable (maximum)
 import Data.Int (fromStringAs, hexadecimal, odd)
-import Data.Maybe (Maybe(..))
-import Data.Set (Set, findMin)
+import Data.Maybe (Maybe)
+import Data.Set (Set)
 import Data.Set as Set
 import Data.String as String
 import Data.Traversable (traverse)
-import Data.Unfoldable (unfoldr)
-import Utils (dec, inc, fastIntersection)
+import Utils (Walker, connectedGroups, dec, inc)
 import Year2017.Day10 (knotHash)
 
 input :: String
@@ -56,42 +55,19 @@ sparseBitmap bitmap =
     (Array.range 0 (length bitmap))
     bitmap
 
--- Yes, this is Day 12 copy & pasta. Will I get time to generalise?
-connectedGroups :: Set (Int /\ Int) -> Array { index :: (Int /\ Int), groupNumber :: Int }
-connectedGroups graph =
-  unfoldr visitor { toVisit: Set.empty
-                  , unvisited: graph
-                  , groupNumber: 0
-                  }
-  where
-    visitor {toVisit, unvisited, groupNumber} =
-      case findMin (fastIntersection toVisit unvisited) of
-        Just visiting@(x /\ y) ->
-          let possibleNeighbours = [ x /\ inc y
-                                   , x /\ dec y
-                                   , inc x /\ y
-                                   , dec x /\ y
-                                   ]
-              neighbours = Set.fromFoldable $ Array.filter (flip Set.member graph) possibleNeighbours
-          in Just ({ index: visiting
-                   , groupNumber
-                   }
-                   /\
-                   { toVisit: toVisit
-                                # Set.union neighbours
-                                # Set.delete visiting
-                   , unvisited: Set.delete visiting unvisited
-                   , groupNumber
-                   })
-        -- This group is exhausted. Start a search for the next.
-        Nothing ->
-          case findMin unvisited of
-            Nothing -> Nothing
-            Just nextGroupStart -> visitor { toVisit: Set.singleton nextGroupStart
-                                           , unvisited
-                                           , groupNumber: groupNumber + 1
-                                           }
+walker :: Walker (Set (Tuple Int Int)) (Tuple Int Int)
+walker =
+  { neighbours: \graph (x /\ y) ->
+                   Set.fromFoldable
+                   $ Array.filter (flip Set.member graph)
+                   $ [ x /\ inc y
+                     , x /\ dec y
+                     , inc x /\ y
+                     , dec x /\ y
+                     ]
+  , unvisitedFn: id
+  }
 
 solution2 :: Maybe Int
 solution2 =
-  maximum =<< map _.groupNumber <<< connectedGroups <<< sparseBitmap <$> bitField
+  maximum =<< map _.groupNumber <<< connectedGroups walker <<< sparseBitmap <$> bitField

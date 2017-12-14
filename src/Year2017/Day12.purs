@@ -8,12 +8,11 @@ import Data.Array as Array
 import Data.Foldable (maximum)
 import Data.Map (Map)
 import Data.Map as Map
-import Data.Maybe (Maybe(..), fromMaybe)
-import Data.Set (Set, findMin)
+import Data.Maybe (Maybe, fromMaybe)
+import Data.Set (Set)
 import Data.Set as Set
 import Data.Tuple.Nested (type (/\), (/\))
-import Data.Unfoldable (unfoldr)
-import Utils (fastIntersection)
+import Utils (Walker, connectedGroups)
 import Node.FS (FS)
 import ParserUtils (integer, mustSucceed, parseFile)
 import Text.Parsing.StringParser (Parser)
@@ -36,35 +35,11 @@ lineParser = do
   to <- Set.fromFoldable <$> integer `sepBy` string ", "
   pure $ from /\ to
 
-connectedGroups :: Graph -> Array { index :: Int, groupNumber :: Int }
-connectedGroups graph =
-  unfoldr visitor { toVisit: Set.empty
-                  , unvisited: Set.fromFoldable (Map.keys graph)
-                  , groupNumber: 0
-                  }
-  where
-    visitor {toVisit, unvisited, groupNumber} =
-      case findMin (fastIntersection toVisit unvisited) of
-        Just visiting ->
-          let neighbours = fromMaybe Set.empty $ Map.lookup visiting graph
-          in Just ({ index: visiting
-                   , groupNumber
-                   }
-                   /\
-                   { toVisit: toVisit
-                                # Set.union neighbours
-                                # Set.delete visiting
-                   , unvisited: Set.delete visiting unvisited
-                   , groupNumber
-                   })
-        -- This group is exhausted. Start a search for the next.
-        Nothing ->
-          case findMin unvisited of
-            Nothing -> Nothing
-            Just nextGroupStart -> visitor { toVisit: Set.singleton nextGroupStart
-                                           , unvisited
-                                           , groupNumber: groupNumber + 1
-                                           }
+walker :: Walker (Map Int (Set Int)) Int
+walker =
+  { neighbours: \graph visiting -> fromMaybe Set.empty $ Map.lookup visiting graph
+  , unvisitedFn: Set.fromFoldable <<< Map.keys
+  }
 
 solution1 :: forall eff.
   Eff
@@ -72,7 +47,7 @@ solution1 :: forall eff.
     Int
 solution1 = do
   input <- readInput
-  pure $ Array.length $ Array.filter (_.groupNumber >>> eq 1) $ connectedGroups $ input
+  pure $ Array.length $ Array.filter (_.groupNumber >>> eq 1) $ connectedGroups walker $ input
 
 solution2 :: forall eff.
   Eff
@@ -80,4 +55,4 @@ solution2 :: forall eff.
     (Maybe Int)
 solution2 = do
   input <- readInput
-  pure $ maximum $ map _.groupNumber $ connectedGroups input
+  pure $ maximum $ map _.groupNumber $ connectedGroups walker input
