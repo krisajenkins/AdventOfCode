@@ -2,11 +2,25 @@
 
 My entries for AdventOfCode.com, written in PureScript.
 
-/Disclaimer: I'm not claiming that this code is beautiful, or even
+_Disclaimer: I'm not claiming that this code is beautiful, or even
 100% correct, just that it earns me those precious, precious
-stars. :-D/
+stars. :-D_
 
 ## Thoughts
+
+### 2017, Day 14
+
+Much easier than it initially looked, thanks to Day 12.
+
+### 2017, Day 13
+
+Bit disappointed I could get this performant with lazy sequences, but
+the sieving trick works nicely.
+
+### 2017, Day 12
+
+Enjoyable. I reckon I could write a simple parser blindfolded
+now. This is great practice.
 
 ### 2017, Day 11
 
