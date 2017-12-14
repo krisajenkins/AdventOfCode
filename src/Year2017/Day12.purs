@@ -13,6 +13,7 @@ import Data.Set (Set, findMin)
 import Data.Set as Set
 import Data.Tuple.Nested (type (/\), (/\))
 import Data.Unfoldable (unfoldr)
+import Utils (fastIntersection)
 import Node.FS (FS)
 import ParserUtils (integer, mustSucceed, parseFile)
 import Text.Parsing.StringParser (Parser)
@@ -34,11 +35,6 @@ lineParser = do
   _ <- string " <-> "
   to <- Set.fromFoldable <$> integer `sepBy` string ", "
   pure $ from /\ to
-
--- | Oddly, Data.Set.intersection is extremely slow.
-fastIntersection :: forall a. Ord a => Set a -> Set a -> Set a
-fastIntersection a b =
-  Set.fromFoldable (Array.filter (flip Set.member b) (Array.fromFoldable a))
 
 connectedGroups :: Graph -> Array { index :: Int, groupNumber :: Int }
 connectedGroups graph =

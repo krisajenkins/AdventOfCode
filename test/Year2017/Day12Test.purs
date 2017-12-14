@@ -8,7 +8,7 @@ import Data.Array as Array
 import Data.Map as Map
 import Data.Maybe (Maybe(Just))
 import Data.Set as Set
-import Data.Tuple (Tuple(..), fst)
+import Data.Tuple (Tuple(Tuple))
 import Data.Tuple.Nested ((/\))
 import Node.FS (FS)
 import Test.Unit (TestSuite, suite, test)
