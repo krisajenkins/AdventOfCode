@@ -6,7 +6,21 @@ _Disclaimer: I'm not claiming that this code is beautiful, or even
 100% correct, just that it earns me those precious, precious
 stars. :-D_
 
+## Building
+
+``` sh
+npm install -g yarn
+yarn
+yarn run bower install
+yarn run pulp test
+```
+
 ## Thoughts
+
+### 2017, Day 15
+
+Had to deal with integer overflow (!), but easy enough if you'll
+forgive the fact that eachs solution takes 60s to run.
 
 ### 2017, Day 14
 

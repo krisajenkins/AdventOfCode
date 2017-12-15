@@ -19,7 +19,9 @@
     "purescript-tailrec": "^3.3.0",
     "purescript-filterable": "^2.4.1",
     "purescript-now": "^3.0.0",
-    "purescript-unfoldable": "^3.1.0"
+    "purescript-unfoldable": "^3.1.0",
+    "purescript-bigints": "^3.2.0",
+    "big-integer": "^1.6.26"
   },
   "devDependencies": {
     "purescript-psci-support": "^3.0.0",

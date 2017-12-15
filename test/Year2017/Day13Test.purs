@@ -47,5 +47,5 @@ solution1Tests =
 solution2Tests :: forall eff. TestSuite (testOutput :: TESTOUTPUT, now :: NOW, fs :: FS, exception :: EXCEPTION | eff)
 solution2Tests =
   test "Solution 2" do
-    answer <- liftEff $ timeEff solution2
+    answer <- liftEff solution2
     equal (Just 3833504) answer
