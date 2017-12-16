@@ -2,6 +2,7 @@ module Utils where
 
 import Prelude
 
+import Control.Monad.Rec.Class (Step(..), tailRec)
 import Data.Array as Array
 import Data.Maybe (Maybe(..))
 import Data.Set (Set, findMin)
@@ -64,3 +65,10 @@ connectedGroups {neighbours, unvisitedFn} graph =
                                            , unvisited
                                            , groupNumber: groupNumber + 1
                                            }
+
+repeatN :: forall a. Int -> (a -> a) -> a -> a
+repeatN n action state =
+  tailRec go (n /\ state)
+  where
+    go (0 /\ state) = Done state
+    go (n /\ state) = Loop (dec n /\ action state)

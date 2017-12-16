@@ -25,7 +25,7 @@ import ParserUtils (integer, mustSucceed)
 import Text.Parsing.StringParser (Parser, runParser)
 import Text.Parsing.StringParser.Combinators (sepBy)
 import Text.Parsing.StringParser.String (anyChar, char)
-import Utils (inc)
+import Utils (inc, repeatN)
 
 data Move
   = Spin Int
@@ -102,23 +102,21 @@ solution2 = do
   moveList <- readInput
   oneDance <- solution1
   pure $ do
-    summary <- note "Couldn't summarise" $ summariseDance initialChars oneDance
     -- Find the period with which the dance returns to the original state.
-    let period = _.steps $ tailRec (findPeriod moveList summary) { steps: 1, chars: oneDance }
+    let period = _.steps $ tailRec (findPeriod moveList) { steps: 1, chars: oneDance }
     -- We can now skip most a billion steps.
     let steps = mod (1000*1000*1000) period
     -- Finish up.
-    pure $ tailRec (danceNTimes moveList steps) (initialChars /\ 0)
+    pure $ repeatN steps (dance moveList) initialChars
   where
-    findPeriod :: List Move -> Array Int -> State -> Step State State
-    findPeriod moveList summary state@{ steps, chars } =
+    findPeriod :: List Move -> State -> Step State State
+    findPeriod moveList state@{ steps, chars } =
       if chars == initialChars
       then Done state
       else Loop { steps: inc steps
                 , chars: List.foldl move chars moveList
                 }
 
-    danceNTimes moveList steps (chars /\ n) =
-      if n == steps
-        then Done chars
-        else Loop (List.foldl move chars moveList /\ inc n)
+    dance :: List Move -> Array Char -> Array Char
+    dance moveList chars =
+      List.foldl move chars moveList
