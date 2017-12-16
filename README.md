@@ -17,6 +17,11 @@ yarn run pulp test
 
 ## Thoughts
 
+### 2017, Day 17
+
+Phew! Editor problems and life getting in the way. Nearly didn't
+finish this one. Good puzzle though.
+
 ### 2017, Day 16
 
 Another fun one. I made a wrong assumption about how I could optimise
