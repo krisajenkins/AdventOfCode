@@ -17,6 +17,12 @@ yarn run pulp test
 
 ## Thoughts
 
+### 2017, Day 16
+
+Another fun one. I made a wrong assumption about how I could optimise
+step 2, and that slowed me down, but ended up with a nice optimisation
+that made the whole thing performant enough. :-)
+
 ### 2017, Day 15
 
 Had to deal with integer overflow (!), but easy enough if you'll
