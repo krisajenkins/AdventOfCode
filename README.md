@@ -17,6 +17,12 @@ yarn run pulp test
 
 ## Thoughts
 
+### 2017, Day 18
+
+Probably the most interesting challenge yet. I've solved it, but
+hopefully I'll find time to circle back and actually do something
+elegant. :-}
+
 ### 2017, Day 17
 
 Phew! Editor problems and life getting in the way. Nearly didn't
