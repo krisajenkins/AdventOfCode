@@ -17,6 +17,10 @@ yarn run pulp test
 
 ## Thoughts
 
+### 2017, Day 19
+
+Much easier than it looked at first!
+
 ### 2017, Day 18
 
 Probably the most interesting challenge yet. I've solved it, but
