@@ -17,6 +17,13 @@ yarn run pulp test
 
 ## Thoughts
 
+### 2017, Day 20
+
+Part 1 was trivial. Part 2 took ages, but because I insisted on going
+with maths rather than simulation, and I got one of the intermediate
+formulea wrong, which took ages to find. I'm please I can still solve
+a quadratic equation though!
+
 ### 2017, Day 19
 
 Much easier than it looked at first!
