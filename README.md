@@ -17,6 +17,14 @@ yarn run pulp test
 
 ## Thoughts
 
+### 2017, Day 22
+Performance problems at first, but basically it's just Langton's Ant,
+which I've done before.
+
+### 2017, Day 21
+
+Ugh! Did it, but this is my personal shame list. :-(
+
 ### 2017, Day 20
 
 Part 1 was trivial. Part 2 took ages, but because I insisted on going
