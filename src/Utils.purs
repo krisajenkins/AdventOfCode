@@ -1,13 +1,19 @@
 module Utils where
 
+import Data.Tuple.Nested
 import Prelude
 
+import Control.Monad.Eff (Eff)
+import Control.Monad.Eff.Console (CONSOLE, log)
 import Control.Monad.Rec.Class (Step(..), tailRec)
 import Data.Array as Array
+import Data.Map (Map)
+import Data.Map as Map
 import Data.Maybe (Maybe(..))
 import Data.Set (Set, findMin)
 import Data.Set as Set
-import Data.Tuple.Nested ((/\))
+import Data.String as String
+import Data.Traversable (traverse_)
 import Data.Unfoldable (unfoldr)
 
 inc :: Int -> Int
@@ -70,5 +76,19 @@ repeatN :: forall a. Int -> (a -> a) -> a -> a
 repeatN n action state =
   tailRec go (n /\ state)
   where
-    go (0 /\ state) = Done state
-    go (n /\ state) = Loop (dec n /\ action state)
+    go (n /\ state)
+      | n > 0 = Loop (dec n /\ action state)
+      | otherwise = Done state
+
+showWorld :: forall eff a. (a -> Char) -> Int -> Map (Int /\ Int) a -> Eff (console :: CONSOLE | eff) Unit
+showWorld format size world =
+  traverse_ log $ map showRow $ Array.range 0 (dec size)
+  where
+    showRow :: Int -> String
+    showRow row = String.fromCharArray $ map showCol $ Array.range 0 (dec size)
+      where
+        showCol :: Int -> Char
+        showCol col =
+          case Map.lookup (col /\ row) world of
+            Nothing -> ' '
+            Just x -> format x
