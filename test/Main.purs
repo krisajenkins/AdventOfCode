@@ -25,6 +25,8 @@ import Year2017.Day19Test as Year2017.Day19Test
 import Year2017.Day20Test as Year2017.Day20Test
 import Year2017.Day21Test as Year2017.Day21Test
 import Year2017.Day22Test as Year2017.Day22Test
+import Year2017.Day23Test as Year2017.Day23Test
+import Year2017.Day24Test as Year2017.Day24Test
 import Year2017.Day1Test as Year2017.Day1Test
 import Year2017.Day2Test as Year2017.Day2Test
 import Year2017.Day3Test as Year2017.Day3Test
@@ -69,3 +71,5 @@ main = runTest do
   Year2017.Day20Test.all
   Year2017.Day21Test.all
   Year2017.Day22Test.all
+  Year2017.Day23Test.all
+  Year2017.Day24Test.all
