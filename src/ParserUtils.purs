@@ -55,3 +55,6 @@ mustSucceed (Left err) = throwException $ error $ show err
 
 fileParser :: forall a. Parser a -> Parser (List a)
 fileParser lineParser = lineParser `sepBy` char '\n'
+
+newline :: Parser Unit
+newline = void $ char '\n'

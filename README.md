@@ -17,6 +17,26 @@ yarn run pulp test
 
 ## Thoughts
 
+### 2017, Day 25
+
+That was fun. Since it was the last one, I drew it out a bit by
+writing a full parser instead of just Vimming the instruction list
+into data. I made the infinite tape out of just a set of the addresses
+that are 1s.
+
+### 2017, Day 24
+
+Forced me to think about bidirectional graph representation, which is
+interesting. There's probably a better go-to data structure that I
+must hunt out.
+
+### 2017, Day 23
+
+Another really interesting one - reverse-engineering machine
+code. I've never done anything like that before. It was very
+satisfying when the penny dropped about what the program actually
+does.
+
 ### 2017, Day 22
 Performance problems at first, but basically it's just Langton's Ant,
 which I've done before.
