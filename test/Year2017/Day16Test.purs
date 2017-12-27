@@ -1,4 +1,3 @@
-
 module Year2017.Day16Test where
 
 import Prelude

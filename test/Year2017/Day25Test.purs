@@ -5,6 +5,7 @@ import Prelude
 import Control.Monad.Eff.Class (liftEff)
 import Control.Monad.Eff.Console (CONSOLE)
 import Control.Monad.Eff.Exception (EXCEPTION)
+import Data.BigInt (fromInt)
 import Data.Lens (view)
 import Node.FS (FS)
 import Test.Unit (TestSuite, suite, test)
@@ -22,7 +23,8 @@ readInputTests :: forall eff. TestSuite (testOutput :: TESTOUTPUT, console :: CO
 readInputTests =
   test "readInput" do
     spec <- liftEff readInput
-    equal 12523873 (view _maxSteps spec)
+    equal (fromInt 12523873)
+      (view _maxSteps spec)
 
 solution1Tests :: forall eff. TestSuite (testOutput :: TESTOUTPUT, console :: CONSOLE, fs :: FS, exception :: EXCEPTION | eff)
 solution1Tests =

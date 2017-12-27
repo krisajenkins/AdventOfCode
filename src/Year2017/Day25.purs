@@ -2,14 +2,14 @@ module Year2017.Day25 where
 
 import Prelude hiding (between)
 
-import Data.Lens (Lens', (^.), over, preview, set, view)
 import Control.Alternative ((<|>))
 import Control.Monad.Eff (Eff)
 import Control.Monad.Eff.Console (CONSOLE)
-import Control.Monad.Eff.Exception (EXCEPTION)
-import Control.Monad.Rec.Class (Step(Loop, Done), tailRec)
-import Data.BigInt (BigInt)
+import Control.Monad.Eff.Exception (EXCEPTION, error, throwException)
+import Control.Monad.Rec.Class (Step(Loop, Done), tailRecM)
+import Data.BigInt (BigInt, fromInt)
 import Data.Generic (class Generic, gShow)
+import Data.Lens (Lens', (^.), over, preview, set, view)
 import Data.Lens.Index (ix)
 import Data.Lens.Iso.Newtype (_Newtype)
 import Data.Lens.Record (prop)
@@ -34,7 +34,7 @@ import Text.Parsing.StringParser.String (anyLetter, char, string, whiteSpace)
 
 newtype Program = Program
   { startingState :: Char
-  , maxSteps :: Int
+  , maxSteps :: BigInt
   , states :: Map Char Choice
   }
 
@@ -44,7 +44,7 @@ derive instance eqProgram :: Eq Program
 _startingState :: Lens' Program Char
 _startingState = _Newtype <<< prop (SProxy :: SProxy "startingState")
 
-_maxSteps :: Lens' Program Int
+_maxSteps :: Lens' Program BigInt
 _maxSteps = _Newtype <<< prop (SProxy :: SProxy "maxSteps")
 
 _states :: Lens' Program (Map Char Choice)
@@ -97,7 +97,7 @@ programParser :: Parser Program
 programParser = do
   startingState <- string "Begin in state " *> anyLetter <* string "."
   void whiteSpace
-  maxSteps <- string "Perform a diagnostic checksum after " *> integer <* string " steps."
+  maxSteps <- fromInt <$> (string "Perform a diagnostic checksum after " *> integer <* string " steps.")
   void whiteSpace
   states <- Map.fromFoldable <$> (many statesParser)
   pure $ Program {startingState, maxSteps, states}
@@ -137,7 +137,7 @@ newtype Machine = Machine
   { currentAddress :: BigInt
   , memory :: Set BigInt
   , currentState :: Char
-  , stepCount :: Int
+  , stepCount :: BigInt
   }
 
 derive instance newtypeMachine :: Newtype Machine _
@@ -152,7 +152,7 @@ _memory = _Newtype <<< prop (SProxy :: SProxy "memory")
 _currentState :: Lens' Machine Char
 _currentState = _Newtype <<< prop (SProxy :: SProxy "currentState")
 
-_stepCount :: Lens' Machine Int
+_stepCount :: Lens' Machine BigInt
 _stepCount = _Newtype <<< prop (SProxy :: SProxy "stepCount")
 
 handleInstruction :: Machine -> Instruction -> Machine
@@ -160,32 +160,32 @@ handleInstruction machine (WriteValue One) =
   over _memory (Set.insert (view _currentAddress machine)) machine
 handleInstruction machine (WriteValue Zero) =
   over _memory (Set.delete (view _currentAddress machine)) machine
-handleInstruction machine MoveLeft = over _currentAddress (sub one) machine
+handleInstruction machine MoveLeft = over _currentAddress (flip sub one) machine
 handleInstruction machine MoveRight = over _currentAddress (add one) machine
 handleInstruction machine (ChangeToState newState) = set _currentState newState machine
 
-runMachine :: Program -> Machine
+runMachine :: forall eff. Program -> Eff (exception :: EXCEPTION | eff) Machine
 runMachine program =
-  tailRec go (Machine { currentAddress: zero
-                      , memory: Set.empty
-                      , currentState: view _startingState program
-                      , stepCount: zero
-                      } )
+  tailRecM go (Machine { currentAddress: zero
+                       , memory: Set.empty
+                       , currentState: view _startingState program
+                       , stepCount: zero
+                       })
   where
-    go :: Machine -> Step Machine Machine
-    go machine =
-      if (view _stepCount machine) == (view _maxSteps program)
-      then Done machine
-      else case preview (_states <<< ix (view _currentState machine)) program of
-             Nothing -> Done machine
-             Just choice ->
-               let instructions =
-                     choice ^. (if Set.member (view _currentAddress machine) (view _memory machine)
-                                  then _ifOne
-                                  else _ifZero)
-               in List.foldl handleInstruction machine instructions
-                  # over _stepCount (add one)
-                  # Loop
+    go machine@(Machine {currentState, currentAddress, memory}) =
+      if view _stepCount machine == view _maxSteps program
+      then pure $ Done machine
+      else case preview (_states <<< ix currentState) program of
+              Nothing -> throwException $ error $ "No instruction for state: " <> show currentState
+              Just choice ->
+                let instructions =
+                      choice ^. (if Set.member currentAddress memory
+                                   then _ifOne
+                                   else _ifZero)
+                in List.foldl handleInstruction machine instructions
+                   # over _stepCount (add one)
+                   # Loop
+                   # pure
 
 solution1 :: forall eff.
   Eff
@@ -193,12 +193,5 @@ solution1 :: forall eff.
     Int
 solution1 = do
   program <- readInput
-  let machine = runMachine program
+  machine <- runMachine program
   pure $ Set.size $ view _memory machine
-
-solution2 :: forall eff.
-  Eff
-    (fs :: FS, console :: CONSOLE, exception :: EXCEPTION | eff)
-    Int
-solution2 = do
-  pure 0

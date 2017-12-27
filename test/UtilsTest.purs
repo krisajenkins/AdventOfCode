@@ -2,18 +2,14 @@ module UtilsTest where
 
 import Prelude
 
-import Control.Monad.Eff.Class (liftEff)
-import Control.Monad.Eff.Exception (EXCEPTION)
 import Data.Array as Array
 import Data.Map as Map
-import Data.Maybe (Maybe(Just))
 import Data.Set as Set
 import Data.Tuple (Tuple(Tuple))
 import Data.Tuple.Nested ((/\))
-import Node.FS (FS)
 import Test.Unit (TestSuite, suite, test)
 import Test.Unit.Assert (equal)
-import Utils
+import Utils (connectedGroups)
 import Year2017.Day12 as Day12
 
 all :: forall eff. TestSuite eff
