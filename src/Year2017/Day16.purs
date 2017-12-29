@@ -8,7 +8,7 @@ import Control.Monad.Eff.Exception (EXCEPTION)
 import Control.Monad.Rec.Class (Step(..), tailRec)
 import Data.Array (catMaybes, index)
 import Data.Array as Array
-import Data.Either (Either, note)
+import Data.Either (Either)
 import Data.Generic (class Generic, gShow)
 import Data.List (List)
 import Data.List as List
@@ -17,7 +17,6 @@ import Data.String (trim)
 import Data.String as String
 import Data.Traversable (class Traversable, traverse)
 import Data.Tuple (Tuple(..))
-import Data.Tuple.Nested ((/\))
 import Node.Encoding (Encoding(..))
 import Node.FS (FS)
 import Node.FS.Sync (readTextFile)

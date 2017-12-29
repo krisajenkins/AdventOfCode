@@ -1,8 +1,8 @@
 module Utils where
 
-import Data.Tuple.Nested
 import Prelude
 
+import Data.Tuple.Nested (type (/\), (/\))
 import Control.Monad.Eff (Eff)
 import Control.Monad.Eff.Console (CONSOLE, log)
 import Control.Monad.Rec.Class (Step(..), tailRec)

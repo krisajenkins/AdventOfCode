@@ -6,7 +6,6 @@ import Control.Fold (foldl, maximum, minimum, sum)
 import Control.Monad.Eff (Eff)
 import Control.Monad.Eff.Exception (EXCEPTION)
 import Control.MonadPlus (guard)
-import Data.Array as Array
 import Data.List (List)
 import Node.FS (FS)
 import ParserUtils (integer, mustSucceed, parseFile)

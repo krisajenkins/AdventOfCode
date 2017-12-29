@@ -65,7 +65,10 @@ findLargest sortFn bigraph visited from =
              }
 
 
+longestPath :: Answer -> Answer -> Ordering
 longestPath = compare `on` (negate <<< List.length <<< _.path)
+
+highestStrength :: Answer -> Answer -> Ordering
 highestStrength = compare `on` (negate <<< _.strength)
 
 solution1 :: forall eff.

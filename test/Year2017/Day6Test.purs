@@ -2,15 +2,10 @@ module Year2017.Day6Test where
 
 import Prelude
 
-import Data.Tuple.Nested (type (/\), (/\))
-import Control.Monad.Eff.Console (CONSOLE)
-import Control.Monad.Eff.Now (NOW)
-import Control.Monad.ST (ST)
+import Data.Tuple.Nested ((/\))
 import Test.Unit (TestSuite, suite, test)
 import Test.Unit.Assert (equal)
-import Test.Unit.Console (TESTOUTPUT)
 import Year2017.Day6 (offsetList, redistribute, solve, solution1, solution2)
-import Year2017.Day6 as Day6
 
 all :: forall eff. TestSuite eff
 all =

@@ -2,37 +2,20 @@ module Year2017.Day19 where
 
 import Prelude
 
-import Control.Alternative ((<|>))
 import Control.Monad.Eff (Eff)
 import Control.Monad.Eff.Exception (EXCEPTION)
 import Control.Monad.Rec.Class (Step(..), tailRec)
-import Control.Monad.State (class MonadState, evalState, execState)
-import Data.Array (uncons, snoc)
 import Data.Array as Array
-import Data.BigInt (BigInt, fromInt)
-import Data.Either (Either(Right, Left))
-import Data.Lens (Lens', set, assign, assignJust, modifying, over, to, use, view)
-import Data.Lens.At (at)
-import Data.Lens.Iso.Newtype (_Newtype)
-import Data.Lens.Record (prop)
-import Data.List (List)
 import Data.Map (Map)
 import Data.Map as Map
-import Data.Maybe (Maybe(..), fromMaybe)
-import Data.Newtype (class Newtype)
+import Data.Maybe (Maybe(Nothing, Just))
 import Data.String as String
 import Data.String.Utils (lines)
-import Data.Symbol (SProxy(..))
-import Data.Tuple
+import Data.Tuple (Tuple(..), snd)
 import Data.Tuple.Nested (type (/\), (/\))
 import Node.Encoding (Encoding(..))
 import Node.FS (FS)
 import Node.FS.Sync (readTextFile)
-import ParserUtils (integer, mustSucceed, parseFile)
-import Text.Parsing.StringParser (Parser)
-import Text.Parsing.StringParser.Combinators ((<?>))
-import Text.Parsing.StringParser.String (anyLetter, string)
-import Debug.Trace
 
 type World = Map (Int /\ Int) Char
 
@@ -104,6 +87,7 @@ burnFuse world =
       # map (\direction -> map (Tuple direction) (step state.position state.world direction))
       # Array.catMaybes
 
+opposite :: Direction -> Direction
 opposite North = South
 opposite South = North
 opposite East = West

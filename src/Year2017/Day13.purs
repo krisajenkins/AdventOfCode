@@ -7,7 +7,6 @@ import Control.Monad.Eff.Exception (EXCEPTION)
 import Control.Monad.Rec.Class (Step(..), tailRec)
 import Data.Foldable (sum)
 import Data.List (List(..), catMaybes)
-import Data.List as List
 import Data.Array as Array
 import Data.Maybe (Maybe(..))
 import Data.Tuple.Nested (type (/\), (/\))

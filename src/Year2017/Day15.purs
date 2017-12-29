@@ -4,7 +4,6 @@ import Prelude
 
 import Control.Monad.Rec.Class (Step(..), tailRec)
 import Data.BigInt (BigInt, fromInt, pow)
-import Data.Lazy (Lazy, defer)
 import Data.Maybe (Maybe(..), fromMaybe)
 import Data.Tuple.Nested (type (/\), (/\))
 import Utils (dec, inc)

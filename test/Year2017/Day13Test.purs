@@ -13,8 +13,7 @@ import Node.FS (FS)
 import Test.Unit (TestSuite, suite, test)
 import Test.Unit.Assert (equal)
 import Test.Unit.Console (TESTOUTPUT)
-import TestUtils (timeEff)
-import Year2017.Day13 (readInput, scannerCost, solution1, solution2)
+import Year2017.Day13 (scannerCost, solution1, solution2)
 
 all :: forall eff. TestSuite (testOutput :: TESTOUTPUT, now :: NOW, fs :: FS, exception :: EXCEPTION | eff)
 all =

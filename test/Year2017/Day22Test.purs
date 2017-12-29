@@ -2,11 +2,10 @@ module Year2017.Day22Test where
 
 import Prelude
 
-import Year2017.Day22
+import Year2017.Day22 (solution1, solution2)
 import Control.Monad.Eff.Class (liftEff)
 import Control.Monad.Eff.Console (CONSOLE)
 import Control.Monad.Eff.Exception (EXCEPTION)
-import Data.List as List
 import Node.FS (FS)
 import Test.Unit (TestSuite, suite, test)
 import Test.Unit.Assert (equal)

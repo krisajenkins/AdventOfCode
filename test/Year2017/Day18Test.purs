@@ -14,7 +14,7 @@ import Node.FS (FS)
 import Test.Unit (TestSuite, suite, test)
 import Test.Unit.Assert (equal)
 import Test.Unit.Console (TESTOUTPUT)
-import Year2017.Day18
+import Year2017.Day18 (Instruction(..), readInput, runCPU, runDualCore, solution1, solution2)
 
 all :: forall eff. TestSuite (testOutput :: TESTOUTPUT, now :: NOW, fs :: FS, exception :: EXCEPTION | eff)
 all =

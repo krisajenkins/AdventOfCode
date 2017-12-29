@@ -2,7 +2,7 @@ module Year2017.Day21Test where
 
 import Prelude
 
-import Year2017.Day21
+import Year2017.Day21 (readInput, solution1, solution2)
 import Control.Monad.Eff.Class (liftEff)
 import Control.Monad.Eff.Console (CONSOLE)
 import Control.Monad.Eff.Exception (EXCEPTION)

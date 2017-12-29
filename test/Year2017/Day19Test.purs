@@ -3,19 +3,16 @@ module Year2017.Day19Test where
 import Prelude
 
 import Control.Monad.Eff.Class (liftEff)
-import Data.Map (Map)
 import Data.Map as Map
 import Control.Monad.Eff.Exception (EXCEPTION)
 import Control.Monad.Eff.Now (NOW)
-import Data.Either (Either(..))
-import Data.List as List
 import Data.Maybe (Maybe(..))
 import Data.Tuple.Nested ((/\))
 import Node.FS (FS)
 import Test.Unit (TestSuite, suite, test)
 import Test.Unit.Assert (equal)
 import Test.Unit.Console (TESTOUTPUT)
-import Year2017.Day19
+import Year2017.Day19 (readInput, solution1, solution2)
 
 all :: forall eff. TestSuite (testOutput :: TESTOUTPUT, now :: NOW, fs :: FS, exception :: EXCEPTION | eff)
 all =
