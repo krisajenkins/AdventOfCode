@@ -5,9 +5,8 @@ import Prelude
 import Compass (Avatar(..), Cmd(..), Direction(..), _x, _y, handleCmd)
 import Control.Alternative ((<|>))
 import Control.Monad.Eff (Eff)
-import Control.Monad.Eff.Console (CONSOLE, logShow)
+import Control.Monad.Eff.Console (CONSOLE)
 import Control.Monad.Eff.Exception (EXCEPTION)
-import Control.Monad.Rec.Class (Step(Loop, Done), tailRec)
 import Data.Lens (view)
 import Data.List (List)
 import Data.List as List
@@ -21,7 +20,7 @@ import ParserUtils (mustSucceed, parseFile)
 import Text.Parsing.StringParser (Parser)
 import Text.Parsing.StringParser.Combinators (many1)
 import Text.Parsing.StringParser.String (char)
-import Utils (dec, inc, showWorld)
+import Utils (inc, repeatN)
 
 type World a = Map (Int /\ Int) a
 
@@ -44,8 +43,7 @@ cellParser =
   (char '.' *> pure false)
 
 type State a =
-  { count :: Int
-  , changeCount :: Map (Maybe a) Int
+  { changeCount :: Map (Maybe a) Int
   , world :: World a
   , avatar :: Avatar
   }
@@ -58,19 +56,26 @@ evolve :: forall a.
   -> Int
   -> State a
 evolve changeState changeAvatar world count =
-  tailRec go { count, changeCount: Map.empty, world, avatar: Avatar { x: 12, y: 12, direction: North } }
+  repeatN
+    count
+    go
+    { changeCount: Map.empty
+    , world
+    , avatar: Avatar { x: 12
+                     , y: 12
+                     , direction: North
+                     }
+    }
   where
-    go state@{count: 0} = Done state
-    go {count: n, changeCount, world, avatar } =
+    go {changeCount, world, avatar } =
       let position = (view _x avatar /\ view _y avatar)
           health = Map.lookup position world
           avatar' = changeAvatar health avatar
           world' = Map.alter changeState position world
-      in Loop { count: dec n
-              , world: world'
-              , avatar: avatar'
-              , changeCount: Map.alter (Just <<< inc <<< fromMaybe 0) (changeState health) changeCount
-              }
+      in { world: world'
+         , avatar: avatar'
+         , changeCount: Map.alter (Just <<< inc <<< fromMaybe 0) (changeState health) changeCount
+         }
 
 solution1 :: forall eff.
   Eff
@@ -79,8 +84,6 @@ solution1 :: forall eff.
 solution1 = do
   input <- readInput
   let final = evolve changeState changeAvatar input 10000
-  showWorld formatter 30 final.world
-  logShow final.avatar
   pure $ fromMaybe 0 $ Map.lookup (Just true) final.changeCount
   where
     formatter true = '#'
@@ -104,8 +107,6 @@ solution2 :: forall eff.
 solution2 = do
   input <- map (\x -> if x then Infected else Clean) <$> readInput
   let final = evolve changeState changeAvatar input 10000000
-  showWorld formatter 30 final.world
-  logShow final.avatar
   pure $ fromMaybe 0 $ Map.lookup (Just Infected) final.changeCount
   where
     formatter Clean = '.'
