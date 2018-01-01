@@ -2,17 +2,17 @@ module Year2017.Day22 where
 
 import Prelude
 
-import Compass (Avatar(..), Cmd(..), Direction(..), _x, _y, handleCmd)
+import Compass (Avatar(Avatar), Cmd(Move, TurnLeft, TurnRight), Direction(North), _x, _y, handleCmds)
 import Control.Alternative ((<|>))
 import Control.Monad.Eff (Eff)
 import Control.Monad.Eff.Console (CONSOLE)
 import Control.Monad.Eff.Exception (EXCEPTION)
+import Data.DefaultMap (DefaultMap)
+import Data.DefaultMap as DefaultMap
 import Data.Lens (view)
 import Data.List (List)
 import Data.List as List
-import Data.Map (Map)
-import Data.Map as Map
-import Data.Maybe (Maybe(..), fromMaybe)
+import Data.Maybe (Maybe(Just))
 import Data.Tuple (Tuple(Tuple))
 import Data.Tuple.Nested (type (/\), (/\))
 import Node.FS (FS)
@@ -22,19 +22,21 @@ import Text.Parsing.StringParser.Combinators (many1)
 import Text.Parsing.StringParser.String (char)
 import Utils (inc, repeatN)
 
-type World a = Map (Int /\ Int) a
+type World a = DefaultMap (Int /\ Int) a
 
-toWorld :: forall a. List (List a) -> World a
-toWorld =
-  Map.fromFoldable <<<
-  List.concat <<< List.mapWithIndex (\row -> List.mapWithIndex (\col -> Tuple (col /\ row) ))
+toWorld :: forall a. a -> List (List a) -> World a
+toWorld defaultValue =
+  List.mapWithIndex (\row -> List.mapWithIndex (\col -> Tuple (col /\ row)))
+  >>> List.concat
+  >>> DefaultMap.fromFoldable defaultValue
 
 readInput :: forall eff.
   Eff
     (fs :: FS, exception :: EXCEPTION | eff)
-    (World Boolean)
+    (List (List Boolean))
 readInput =
-  toWorld <$> (parseFile (many1 cellParser) "src/Year2017/Day22.txt" >>= mustSucceed)
+  parseFile (many1 cellParser) "src/Year2017/Day22.txt"
+    >>= mustSucceed
 
 cellParser :: Parser Boolean
 cellParser =
@@ -43,84 +45,97 @@ cellParser =
   (char '.' *> pure false)
 
 type State a =
-  { changeCount :: Map (Maybe a) Int
+  { avatar :: Avatar
   , world :: World a
-  , avatar :: Avatar
+  , changeTally :: DefaultMap a Int
   }
 
+class Langton a where
+  formatter :: a -> Char
+  changeState :: a -> a
+  avatarCmds :: a -> Array Cmd
+
 evolve :: forall a.
-  Ord a =>
-  (Maybe a -> Maybe a)
-  -> (Maybe a -> Avatar -> Avatar)
+  Ord a
+  => Langton a
+  => Int
   -> World a
-  -> Int
   -> State a
-evolve changeState changeAvatar world count =
-  repeatN
-    count
-    go
-    { changeCount: Map.empty
-    , world
-    , avatar: Avatar { x: 12
-                     , y: 12
-                     , direction: North
-                     }
-    }
-  where
-    go {changeCount, world, avatar } =
-      let position = (view _x avatar /\ view _y avatar)
-          health = Map.lookup position world
-          avatar' = changeAvatar health avatar
-          world' = Map.alter changeState position world
-      in { world: world'
-         , avatar: avatar'
-         , changeCount: Map.alter (Just <<< inc <<< fromMaybe 0) (changeState health) changeCount
-         }
+evolve count world =
+  repeatN count step (initialState world)
+
+initialState :: forall a. World a -> State a
+initialState world =
+  { changeTally: DefaultMap.empty 0
+  , world
+  , avatar: Avatar { x: 12
+                   , y: 12
+                   , direction: North
+                   }
+  }
+
+step :: forall a.
+  Langton a
+  => Ord a
+  => State a
+  -> State a
+step { changeTally, world, avatar } =
+  let position = (Tuple <$> view _x <*> view _y) avatar
+      health = DefaultMap.lookup position world
+      newAvatar = handleCmds avatar (avatarCmds health)
+      newWorld = DefaultMap.alter (Just <<< changeState) position world
+      newChangeTally = DefaultMap.alter
+                         (Just <<< inc)
+                         (changeState health)
+                         changeTally
+  in { world: newWorld
+     , avatar: newAvatar
+     , changeTally: newChangeTally
+     }
+
+instance langtonBoolean :: Langton Boolean where
+  formatter true = '#'
+  formatter false = '.'
+
+  changeState x = not x
+
+  avatarCmds true = [TurnRight, Move 1]
+  avatarCmds false = [TurnLeft, Move 1]
 
 solution1 :: forall eff.
   Eff
     (fs :: FS, exception :: EXCEPTION, console :: CONSOLE | eff)
     Int
 solution1 = do
-  input <- readInput
-  let final = evolve changeState changeAvatar input 10000
-  pure $ fromMaybe 0 $ Map.lookup (Just true) final.changeCount
-  where
-    formatter true = '#'
-    formatter false = '.'
-    changeState Nothing = changeState (Just false)
-    changeState (Just true) = Nothing
-    changeState (Just false) = Just true
-    changeAvatar :: Maybe Boolean -> Avatar -> Avatar
-    changeAvatar (Just true) = handleCmd TurnRight >>> handleCmd (Move 1)
-    changeAvatar (Just false) = handleCmd TurnLeft >>> handleCmd (Move 1)
-    changeAvatar Nothing = changeAvatar (Just false)
+  input <- toWorld false <$> readInput
+  let final = evolve 10000 input
+  pure $ DefaultMap.lookup true final.changeTally
 
 data Health = Clean | Weakened | Infected | Flagged
 derive instance eqHealth :: Eq Health
 derive instance ordHealth :: Ord Health
+
+instance langtonHealth :: Langton Health where
+  formatter Clean = '.'
+  formatter Weakened = 'W'
+  formatter Infected = '#'
+  formatter Flagged = 'o'
+
+  changeState Clean = Weakened
+  changeState Weakened = Infected
+  changeState Infected = Flagged
+  changeState Flagged = Clean
+
+  avatarCmds Clean = [TurnLeft, Move 1]
+  avatarCmds Weakened = [Move 1]
+  avatarCmds Infected = [TurnRight, Move 1]
+  avatarCmds Flagged = [TurnLeft, TurnLeft, Move 1]
 
 solution2 :: forall eff.
   Eff
     (fs :: FS, exception :: EXCEPTION, console :: CONSOLE | eff)
     Int
 solution2 = do
-  input <- map (\x -> if x then Infected else Clean) <$> readInput
-  let final = evolve changeState changeAvatar input 10000000
-  pure $ fromMaybe 0 $ Map.lookup (Just Infected) final.changeCount
-  where
-    formatter Clean = '.'
-    formatter Weakened = 'W'
-    formatter Infected = '#'
-    formatter Flagged = 'o'
-    changeState Nothing = changeState (Just Clean)
-    changeState (Just Clean) = Just Weakened
-    changeState (Just Weakened) = Just Infected
-    changeState (Just Infected) = Just Flagged
-    changeState (Just Flagged) = Nothing
-    changeAvatar :: Maybe Health -> Avatar -> Avatar
-    changeAvatar (Just Clean) = handleCmd TurnLeft >>> handleCmd (Move 1)
-    changeAvatar (Just Weakened) = handleCmd (Move 1)
-    changeAvatar (Just Infected) = handleCmd TurnRight >>> handleCmd (Move 1)
-    changeAvatar (Just Flagged) = handleCmd TurnLeft >>> handleCmd TurnLeft >>> handleCmd (Move 1)
-    changeAvatar Nothing = changeAvatar (Just Clean)
+  input <- toWorld Clean <<< map (map (\x -> if x then Infected else Clean)) <$> readInput
+  let final = evolve 10000000 input
+  pure $ DefaultMap.lookup Infected final.changeTally

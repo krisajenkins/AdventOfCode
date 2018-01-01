@@ -2,8 +2,9 @@ module Compass where
 
 import Prelude
 
-import Data.Lens (Lens', over, view)
+import Data.Foldable (class Foldable, foldl)
 import Data.Generic (class Generic, gShow)
+import Data.Lens (Lens', over, view)
 import Data.Lens.Iso.Newtype (_Newtype)
 import Data.Lens.Record (prop)
 import Data.Newtype (class Newtype)
@@ -62,3 +63,6 @@ handleCmd (Move n) = do
     East  -> over _x inc
     North -> over _y dec
     South -> over _y inc
+
+handleCmds :: forall f. Foldable f => Avatar -> f Cmd -> Avatar
+handleCmds = foldl (flip handleCmd)
